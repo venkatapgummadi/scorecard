@@ -529,20 +529,36 @@ SAST is testing run on source code before the application is run. Using SAST
 tools can prevent known classes of bugs from being inadvertently introduced in the
 codebase.
 
-The checks currently looks for known GitHub apps such as
-[CodeQL](https://codeql.github.com/) (github-code-scanning) or
-[SonarCloud](https://sonarcloud.io/) in the recent (~30) merged PRs, or the use
-of "github/codeql-action" in a GitHub workflow. It also checks for the deprecated
-[LGTM](https://lgtm.com/) service until its forthcoming shutdown.
+The check currently detects the following SAST tools, either via known
+GitHub apps in recent (~30) merged pull requests or via GitHub workflow
+definitions:
+- [CodeQL](https://codeql.github.com/) - GitHub workflow uses
+  `github/codeql-action/analyze`, or the `github-code-scanning` app
+  appears on recent PRs.
+- [SonarCloud / SonarQube](https://www.sonarsource.com/) - detected via
+  the `<sonar.host.url>` element in `pom.xml`, or via the `sonarcloud` /
+  `sonarqubecloud` GitHub apps on recent PRs.
+- [Snyk](https://snyk.io/) - any GitHub workflow that uses an action
+  matching `snyk/actions/*`.
+- [Pysa](https://github.com/facebook/pysa-action) - GitHub workflow
+  uses `facebook/pysa-action`.
+- [Qodana](https://www.jetbrains.com/qodana/) - GitHub workflow uses
+  `JetBrains/qodana-action`.
+
+The check also retains historical detection logic for the
+[LGTM](https://lgtm.com/) service (`lgtm-com` GitHub app), but LGTM was
+[sunset in December 2022](https://github.blog/2022-08-15-the-next-step-for-lgtm-com-github-code-scanning/)
+and no longer produces a usable detection signal in practice.
 
 Note: A project that fulfills this criterion with other tools may still receive
 a low score on this test. There are many ways to implement SAST, and it is
-challenging for an automated tool like Scorecard to detect them all. A low score
-is therefore not a definitive indication that the project is at risk.
+challenging for an automated tool like Scorecard to detect them all. A low
+score is therefore not a definitive indication that the project is at risk.
  
 
 **Remediation steps**
 - Run CodeQL checks in your CI/CD by following the instructions [here](https://github.com/github/codeql-action#usage).
+- If CodeQL is not suitable for your stack, configure one of the other Scorecard-detected SAST integrations: SonarCloud / SonarQube, Snyk (`snyk/actions/*`), Pysa (`facebook/pysa-action`), or Qodana (`JetBrains/qodana-action`).
 
 ## SBOM 
 
